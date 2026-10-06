@@ -153,6 +153,44 @@ impl InstanceHeader {
         self.rotation().inverse() * ((world - self.position()) / self.scale)
     }
 
+    /// A local box's eight corners placed in the world through this header.
+    ///
+    /// Corner `i` takes the maximum on axis `a` where bit `a` of `i` is set,
+    /// which is the order every caller of this already used when each wrote
+    /// the loop itself.
+    #[must_use]
+    pub fn world_corners(&self, min: [f32; 3], max: [f32; 3]) -> [[f32; 3]; 8] {
+        std::array::from_fn(|index| {
+            let local = Vec3::from_array(std::array::from_fn(|axis| {
+                if index & (1 << axis) == 0 {
+                    min[axis]
+                } else {
+                    max[axis]
+                }
+            }));
+            self.to_world(local).to_array()
+        })
+    }
+
+    /// The axis-aligned world box round a local box's turned corners.
+    ///
+    /// A turned box is not axis-aligned, so this is the smallest box that
+    /// holds it rather than the box itself - conservative, which is what a
+    /// camera fit and a focus target both want. Every placed thing needs it,
+    /// so it is stated beside the [`InstanceHeader::to_world`] that does the
+    /// work rather than once per crate that places something.
+    #[must_use]
+    pub fn world_box(&self, min: [f32; 3], max: [f32; 3]) -> ([f32; 3], [f32; 3]) {
+        let mut lo = Vec3::INFINITY;
+        let mut hi = Vec3::NEG_INFINITY;
+        for corner in self.world_corners(min, max) {
+            let p = Vec3::from_array(corner);
+            lo = lo.min(p);
+            hi = hi.max(p);
+        }
+        (lo.to_array(), hi.to_array())
+    }
+
     /// The same header on its own clock: `offset` seconds added to the frame's
     /// time after it is multiplied by `scale`.
     #[must_use]
@@ -390,6 +428,46 @@ mod tests {
             "fn header_time",
         ] {
             assert!(super::HEADER_WGSL.contains(name), "{name}");
+        }
+    }
+    #[test]
+    fn a_world_box_holds_every_turned_corner_and_grows_when_turned() {
+        let min = [-0.9, 0.0, -0.1];
+        let max = [0.9, 0.4, 0.1];
+
+        // Unturned and unscaled, the world box is the local box.
+        let flat = InstanceHeader::from_yaw([0.0, 0.0, 0.0], 0.0);
+        let (lo, hi) = flat.world_box(min, max);
+        for axis in 0..3 {
+            assert!((lo[axis] - min[axis]).abs() < 1e-6, "{lo:?}");
+            assert!((hi[axis] - max[axis]).abs() < 1e-6, "{hi:?}");
+        }
+
+        // A long thin box turned 45 degrees needs a wider box than its own.
+        // Half a diagonal of 0.9 and 0.1 is about 0.707, well past 0.9's
+        // half-width in z and well short of it in x.
+        let turned = InstanceHeader::from_yaw([3.0, 1.0, -2.0], std::f32::consts::FRAC_PI_4);
+        let (lo, hi) = turned.world_box(min, max);
+        assert!(
+            hi[2] - lo[2] > 0.4,
+            "a turned box did not grow: {lo:?} {hi:?}"
+        );
+
+        // Conservative: it holds all eight corners, turn and offset included.
+        for corner in turned.world_corners(min, max) {
+            for axis in 0..3 {
+                assert!(
+                    corner[axis] >= lo[axis] - 1e-5 && corner[axis] <= hi[axis] + 1e-5,
+                    "corner {corner:?} outside {lo:?}..{hi:?}"
+                );
+            }
+        }
+
+        // Its centre is where the header put the local box's centre.
+        let want = turned.to_world(0.5 * (Vec3::from_array(min) + Vec3::from_array(max)));
+        for axis in 0..3 {
+            let got = 0.5 * (lo[axis] + hi[axis]);
+            assert!((got - want[axis]).abs() < 1e-5, "{got} vs {want:?}");
         }
     }
 }

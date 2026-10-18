@@ -24,3 +24,8 @@ Departures from the extraction plan:
 - Dependency versions are written as the plan's minimum caret requirements
   (`1.23.2`, `0.33`, `30.0.1`), not `=` pins; `Cargo.lock` is ignored by git,
   so a build may resolve a newer compatible patch (bytemuck resolves 1.25.2).
+
+## 2026-10-18 16:36 EDT — A timestamp corrected
+
+The entry "The repository stands alone" above was timed 16:30 by hand, not
+from the clock; its text stands and this note records that.

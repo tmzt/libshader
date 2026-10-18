@@ -1,15 +1,15 @@
 [package]
-name = "libbelladonna"
+name = "libshader"
 description = "Shared GPU data layouts (the instance and frame headers) and build-time WGSL validation for renderers"
-edition.workspace = true
-license.workspace = true
-version.workspace = true
+edition = "2024"
+license = "MIT OR Apache-2.0"
+version = "0.1.0"
 build = "build.rs"
 
 [dependencies]
-bytemuck.workspace = true
-glam.workspace = true
-naga.workspace = true
+bytemuck = { version = "1.23.2", features = ["derive"] }
+glam = "0.33"
+naga = { version = "30.0.1", features = ["wgsl-in"] }
 
 [build-dependencies]
-naga.workspace = true
+naga = { version = "30.0.1", features = ["wgsl-in"] }

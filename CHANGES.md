@@ -29,3 +29,9 @@ Departures from the extraction plan:
 
 The entry "The repository stands alone" above was timed 16:30 by hand, not
 from the clock; its text stands and this note records that.
+
+## 2026-10-22 02:57 EDT — 0.1.0 recorded and tagged after the fact
+
+The version was set to 0.1.0 in 5236d2c without a `VERSIONS.md` entry or
+a tag (Rule 5.1 and 5.3). The entry is appended now, naming 5236d2c, and
+`v0.1.0` tags 5236d2c, the commit that set the version.

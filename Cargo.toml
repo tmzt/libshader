@@ -3,7 +3,7 @@ name = "libshader"
 description = "Shared GPU data layouts (the instance and frame headers) and build-time WGSL validation for renderers"
 edition = "2024"
 license = "MIT OR Apache-2.0"
-version = "0.1.0"
+version = "0.1.1"
 build = "build.rs"
 
 [dependencies]

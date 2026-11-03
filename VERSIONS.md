@@ -24,3 +24,21 @@ The first version: the crate standing alone.
   the original file and line), and `check`.
 - Added `layout`: `wgsl_offsets` and `wgsl_size`, the member offsets and
   size naga computes for a WGSL struct.
+
+## 0.1.1 — 2026-11-03 (tag v0.1.1)
+
+Strictly additive (Rule 5.4), so the patch version.
+
+- Added `view`:
+  - `View`, the orthographic view a renderer draws through - yaw and
+    pitch, the frame's world half-height, its centre and the target's
+    aspect - with `Default` (the front view of a square frame two units
+    across), `isometric`, `clamped_pitch`, `rotation`, `basis`, `project`
+    and `to_pixel`;
+  - `ISOMETRIC_PITCH`, `atan(1 / sqrt 2)`, and `PITCH_LIMIT`.
+- Re-exported `View`, `ISOMETRIC_PITCH` and `PITCH_LIMIT` at the crate
+  root.
+
+Rule 5.2 asks the heading to name the commit, which a commit cannot carry
+for itself; the tag is that pointer, and it is on the commit that sets the
+version, as Rule 5.1 requires.

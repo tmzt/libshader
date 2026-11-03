@@ -9,6 +9,8 @@
 //!   naga, reporting errors against the original file and line.
 //! - [`layout`]: `wgsl_offsets`, the member offsets naga computes for a WGSL
 //!   struct, for tests that compare them with `offset_of!` on the Rust side.
+//! - [`view`]: the orthographic view a renderer draws through, as the two
+//!   angles and the framing both sides have to agree on.
 //!
 //! This is a contract both sides must agree on, not a library of shader code:
 //! SDF primitives, lighting and noise stay in each renderer. It depends on no
@@ -17,8 +19,10 @@
 pub mod build;
 pub mod instance;
 pub mod layout;
+pub mod view;
 
 pub use instance::{
     FrameHeader, HEADER_HIDDEN, HEADER_HIGHLIGHT, HEADER_RESERVED, HEADER_SELECTED, HEADER_WGSL,
     InstanceHeader, NonUniformScale, uniform_scale,
 };
+pub use view::{ISOMETRIC_PITCH, PITCH_LIMIT, View};

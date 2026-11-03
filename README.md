@@ -10,6 +10,9 @@ Shared GPU data layouts and build-time WGSL tooling for instanced renderers.
   against the original file and line.
 - `layout`: `wgsl_offsets` and `wgsl_size`, the member offsets naga computes
   for a WGSL struct, for tests that compare them with `offset_of!`.
+- `view`: `View`, the orthographic view a renderer draws through - yaw and
+  pitch, the frame's world half-height, its centre and the target's aspect -
+  whose basis is built the same way on the CPU and in a shader.
 
 It depends on no GPU API. Licensed under MIT OR Apache-2.0
 ([LICENSE-MIT](LICENSE-MIT), [LICENSE-APACHE](LICENSE-APACHE)).

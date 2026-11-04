@@ -70,3 +70,56 @@ Departures and notes:
 - `PITCH_LIMIT` keeps its value and its reason, generalised: an orbit control
   holds the pitch short of the poles, where yaw stops meaning anything.
 - This addendum is written with the change rather than before it (Rule 0.1).
+
+## 2026-11-04 10:52 EST — A daylight rig, imported rather than written twice
+
+`daylight`: the sun through a day into night, the sky it hangs in, the
+lamps a host adds, and the tone map and encoding that put the result on a
+target. Released as 0.1.2.
+
+**Why it is here at all, against this crate's own line.** The crate has
+said since 0.1.0 that it is "a contract both sides must agree on, not a
+library of shader code: SDF primitives, lighting and noise stay in each
+renderer". That line is now narrowed rather than kept, and the doc says
+so: two renderers drawing one frame have to agree on where the light comes
+from exactly as they have to agree on where the camera is, which is the
+same argument that put `view` here in 0.1.1. A rig written twice is two
+rigs, and the second one drifts. SDF primitives stay in each renderer.
+
+It is imported, never required. Nothing else in the crate names it, so a
+renderer that does not want it compiles exactly what it compiled before.
+
+**It declares nothing.** No binding, no uniform, no entry point, no vertex
+format. Everything arrives in three private globals a host sets at the
+start of its fragment stage - the sky's time, the hour, the declination -
+or as an argument. That is what lets one copy serve a renderer's own
+passes and the lighting hooks it hands to somebody else's renderer, and
+come out the same in both; a rig that declared its own uniform could not
+be joined into a module whose bindings are already spoken for.
+
+**What a host must supply.** One function, `dl_height(c) -> f32`: the
+height of whatever casts shadows over cell `c`, which the sun's shadow
+march reads. A host with nothing to cast one joins `DAYLIGHT_FLAT_WGSL`
+instead of writing it. `daylight.wgsl` therefore does not validate on its
+own and is not meant to - `build.rs` validates the pair, which is how a
+host with no height field will join them.
+
+**The lamp's falloff takes its radius rather than naming one.** A flame's
+reach is `1 / (1 + r^2 / r0^2)` cut at a distance, and both numbers are
+arguments with no default. The rig this was measured from had them baked
+for a grid whose cell is 0.025 world units; a renderer working in metres
+that took those constants would have every lamp die a few centimetres from
+itself, with nothing to see but a dark room. A shared crate cannot carry
+one caller's scale.
+
+**The Rust half is a mirror, and a test holds it there.** `Keys`, the
+palette and `arc_sun`, `sun_dir`, `ambient` and `tonemap` state the same
+numbers for a host that has to know where the light is without asking the
+GPU - placing a drawn shadow, tinting a sprite, telling a second renderer.
+Two statements of one number drift silently, so
+`the_keys_are_the_ones_the_wgsl_uses` reads the WGSL this crate ships and
+fails if a key here is not spelt there.
+
+`arc_sun` carries an `allow(clippy::approx_constant)`: its literals are
+the shader's digit for digit, and `FRAC_PI_6` is a different number in the
+last places and so a different sun.

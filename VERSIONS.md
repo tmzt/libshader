@@ -42,3 +42,35 @@ Strictly additive (Rule 5.4), so the patch version.
 Rule 5.2 asks the heading to name the commit, which a commit cannot carry
 for itself; the tag is that pointer, and it is on the commit that sets the
 version, as Rule 5.1 requires.
+
+## 0.1.2 — 2026-11-04 (tag v0.1.2)
+
+Strictly additive (Rule 5.4), so the patch version.
+
+- Added `daylight`, an outdoor light rig a renderer imports:
+  - `DAYLIGHT_WGSL`, the rig as WGSL, joined ahead of a renderer's own
+    source. The sun's arc by the hour and the date, its dusk and night
+    keys, the sky's gradient with clouds and a disc, the ambient from the
+    sky and the ground's bounce, a lamp's falloff and whether it is seen,
+    aerial haze, a soft sun shadow marched through the host's height
+    field, the ACES tone map, and sRGB encoding both ways. It declares no
+    binding, no uniform and no entry point: a host sets `dl_t`, `dl_early`
+    and `dl_decl` and passes the rest as arguments.
+  - `DAYLIGHT_FLAT_WGSL`, the `dl_height` a host with nothing to cast a
+    shadow joins instead of writing one.
+  - `Keys` and `Keys::at`, a value at the day's three keys and the blend
+    between them, with `SUN_RGB`, `SKY_RGB`, `BOUNCE_RGB`, `ZENITH_RGB`,
+    `HORIZON_RGB`, `HAZE_RGB` and `SUN_DIR`.
+  - `arc_sun`, `sun_dir`, `ambient` and `tonemap`, the CPU's half of the
+    same numbers.
+  - `NOON`, `DUSK`, `NIGHT`, `ZENITH_ANGLE` and `SOLSTICE_DECLINATION`.
+- Re-exported `DAYLIGHT_WGSL` and `DAYLIGHT_FLAT_WGSL` at the crate root.
+- The crate's description names the rig.
+
+Nothing existing changed, and nothing else in the crate depends on the new
+module: a renderer that does not import it is unaffected, including in what
+its shaders compile.
+
+Rule 5.2 asks the heading to name the commit, which a commit cannot carry
+for itself; the tag is that pointer, and it is on the commit that sets the
+version, as Rule 5.1 requires.
